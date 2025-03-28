@@ -2,7 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from .schemas import GetUserByIdSchema, GetUsersSchema, UpdateUserByIdSchema
+from app.schemas.admin_schemas import (
+    GetUserByIdSchema,
+    GetUsersSchema,
+    UpdateUserByIdSchema,
+)
 
 admin_v1_router = APIRouter(prefix="/v1/admin", tags=["Admin Actions"])
 
