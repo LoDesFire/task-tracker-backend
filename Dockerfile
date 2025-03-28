@@ -9,7 +9,7 @@ COPY poetry.lock pyproject.toml /code/
 RUN python -m pip install --no-cache-dir poetry==2.1.1 \
     && poetry config virtualenvs.in-project true
 
-RUN poetry install --no-interaction --no-ansi
+RUN poetry install --no-interaction --no-ansi --no-root
 
 FROM python:${PYTHON_VERSION}-slim
 
@@ -34,7 +34,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
   PYTHONHASHSEED=random \
   PIP_NO_CACHE_DIR=off \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
-  PIP_DEFAULT_TIMEOUT=100
+  PIP_DEFAULT_TIMEOUT=100 \
+  PYTHONPATH=/code
 
 WORKDIR /code
 

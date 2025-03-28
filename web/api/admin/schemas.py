@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from app.database.models import Users
+from app.models.users import Users
 
 
 class GetUserByIdSchema(BaseModel):

@@ -2,13 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from app.schemas.admin_schemas import (
+from .schemas import (
     GetUserByIdSchema,
     GetUsersSchema,
     UpdateUserByIdSchema,
 )
 
-admin_v1_router = APIRouter(prefix="/v1/admin", tags=["Admin Actions"])
+admin_v1_router = APIRouter(prefix="/admin", tags=["Admin Actions"])
 
 
 @admin_v1_router.get("/user")

@@ -2,15 +2,10 @@ import datetime
 from typing import ClassVar, Optional
 
 from sqlalchemy import Boolean, DateTime, Integer, String, Text, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database.mixins.timestamp_mixins import TimestampMixin
-
-
-class Base(DeclarativeBase):
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
+from app.models.base import Base
+from app.models.mixins.timestamp_mixins import TimestampMixin
 
 
 class Users(Base, TimestampMixin):
