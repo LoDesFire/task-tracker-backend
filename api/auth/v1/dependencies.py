@@ -2,8 +2,7 @@ from fastapi import Depends
 
 from app.database.db_dependency import DBDependency
 from app.repositories.user_repository import UserRepository
-
-from .service import AuthService
+from app.services.auth_service import AuthService
 
 
 def get_user_repository(db: DBDependency = Depends(DBDependency)):
