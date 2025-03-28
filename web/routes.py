@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api import admin_v1_router, auth_v1_router, user_v1_router
+from web.api import admin_v1_router, auth_v1_router, user_v1_router
 
 main_router = APIRouter(prefix="/api")
 

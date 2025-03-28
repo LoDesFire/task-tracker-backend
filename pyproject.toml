@@ -3,9 +3,8 @@ name = "task-tracker-auth-fastapi"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Daniil",email = "dan.shumski@gmail.com"}
+    { name = "Daniil", email = "dan.shumski@gmail.com" }
 ]
-readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiokafka (>=0.12.0,<0.13.0)",
@@ -23,8 +22,15 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "task_tracker_auth_fastapi", from = "src"}]
-package-mode = false
+packages = [
+    { include = "scripts" },
+    { include = "web" },
+    { include = "settings" },
+    { include = "app" }
+]
+
+[tool.poetry.scripts]
+print-settings = "scripts.print_settings:print_settings"
 
 [tool.poetry.group.dev]
 optional = true

@@ -1,2 +1,2 @@
 #!/bin/bash
-/code/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+/code/.venv/bin/uvicorn web.main:app --host 0.0.0.0 --port 8000

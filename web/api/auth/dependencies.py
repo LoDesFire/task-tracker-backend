@@ -1,8 +1,8 @@
 from fastapi import Depends
 
-from app.database.db_dependency import DBDependency
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
+from web.dependencies.db_dependency import DBDependency
 
 
 def get_user_repository(db: DBDependency = Depends(DBDependency)):

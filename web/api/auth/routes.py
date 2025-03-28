@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, status
 
-from app.schemas.auth_schemas import (
+from app.services.auth_service import AuthService
+
+from .dependencies import get_user_service
+from .schemas import (
     LoginUserSchema,
     RegisterUserSchema,
     UserEmailSchema,
     VerificationConfirmationSchema,
 )
-from app.services.auth_service import AuthService
 
-from .dependencies import get_user_service
-
-auth_v1_router = APIRouter(prefix="/v1/auth", tags=["Authentication"])
+auth_v1_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @auth_v1_router.post(

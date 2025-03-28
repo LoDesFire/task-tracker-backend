@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-user_v1_router = APIRouter(prefix="/v1/user", tags=["User Actions"])
+user_v1_router = APIRouter(prefix="/user", tags=["User Actions"])
 
 
 @user_v1_router.put("/")
