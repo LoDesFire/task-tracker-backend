@@ -1,2 +1,0 @@
-class BaseAuthServerException(Exception):
-    pass

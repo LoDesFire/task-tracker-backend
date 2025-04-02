@@ -2,7 +2,7 @@
 import json
 import logging
 
-from settings.general_settings import settings
+from src.settings.general_settings import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
