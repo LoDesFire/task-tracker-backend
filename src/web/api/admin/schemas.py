@@ -42,7 +42,7 @@ class UsersRoleFiltersSchema(BaseModel):
 
 
 class GetUsersSchema(UsersSortingSchema, UsersRoleFiltersSchema):
-    pass
+    """GetUsersSchema"""
 
 
 class UpdateUserByIdSchema(GetUserByIdSchema):
@@ -54,4 +54,4 @@ class UpdateUserByIdSchema(GetUserByIdSchema):
 
 
 class DeleteUserByIdSchema(GetUserByIdSchema):
-    pass
+    """DeleteUserByIdSchema"""

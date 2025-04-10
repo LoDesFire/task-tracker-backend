@@ -8,3 +8,10 @@ class JWTTokenType(StrEnum):
 
     ACCESS = "access"
     REFRESH = "refresh"
+
+
+class RevokeTokensScope(StrEnum):
+    ALL = "all"
+    THE_TOKEN = "the-token"
+    CURRENT_APP = "current-app"
+    # TODO: App by it id

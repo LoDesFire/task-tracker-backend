@@ -9,7 +9,7 @@ app = FastAPI()
 
 
 @app.exception_handler(StarletteHTTPException)
-def web_app_exception_handler(request: Request, exc: StarletteHTTPException):
+def web_app_exception_handler(_: Request, exc: StarletteHTTPException):
     """
     Exception handler for the FastAPI `HTTPException`. Overrides the default handler.
     """
