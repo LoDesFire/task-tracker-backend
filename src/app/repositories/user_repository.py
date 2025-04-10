@@ -1,12 +1,14 @@
+from typing import Any
+
 import sqlalchemy
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from src.app.repositories.exceptions import (
+from src.app.schemas import RegisterUserAppSchema
+from src.helpers.exceptions.repository_exceptions import (
     RepositoryIntegrityError,
     RepositoryNotFoundException,
 )
-from src.app.schemas import RegisterUserAppSchema
 from src.models import Users
 
 
@@ -32,6 +34,24 @@ class UserRepository:
 
         return user
 
+    async def get_user_by_id(self, user_id: str) -> Users:
+        """
+        Obtaining a user by id
+        :param user_id: user's id
+        :return:
+        User database object
+        :raises RepositoryNotFoundException
+        """
+        async with self.db_session() as session:
+            stmnt = select(Users).where(Users.id == user_id)
+            scalar_res = await session.scalars(stmnt)
+            user = scalar_res.first()
+
+            if user is None:
+                raise RepositoryNotFoundException("User not found")
+
+        return user
+
     async def create_user(self, user_schema: RegisterUserAppSchema) -> Users:
         """
         Creating a new user
@@ -47,7 +67,30 @@ class UserRepository:
                 user = scalar_res.first()
                 await session.commit()
 
-        except sqlalchemy.exc.IntegrityError as e:
-            raise RepositoryIntegrityError() from e
+        except sqlalchemy.exc.IntegrityError as exc:
+            raise RepositoryIntegrityError() from exc
 
         return user  # type: ignore
+
+    async def update_user_by_email(
+        self,
+        user_email: str,
+        user_update_data: dict[str, Any],
+    ):
+        """
+        Updates a user fields by email
+        :param user_email: email of the user
+        :param user_update_data: data to update
+        :raises RepositoryIntegrityError
+        """
+        try:
+            async with self.db_session() as session:
+                stmnt = (
+                    update(Users)
+                    .where(Users.email == user_email)
+                    .values(**user_update_data)
+                )
+                await session.execute(stmnt)
+                await session.commit()
+        except sqlalchemy.exc.IntegrityError as exc:
+            raise RepositoryIntegrityError() from exc

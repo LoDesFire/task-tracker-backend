@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -15,8 +16,12 @@ class UsernameMixin(BaseModel):
     username: str
 
 
+class UserEmailSchema(EmailMixin):
+    """UserEmailSchema"""
+
+
 class RegisterInputSchema(PasswordMixin, EmailMixin, UsernameMixin):
-    pass
+    """RegisterInputSchema"""
 
 
 class RegistrationOutputSchema(EmailMixin, UsernameMixin):
@@ -24,14 +29,24 @@ class RegistrationOutputSchema(EmailMixin, UsernameMixin):
 
 
 class LoginSchema(PasswordMixin, EmailMixin):
-    pass
+    """LoginSchema"""
 
 
 class JWTPayloadUserSchema(BaseModel):
     is_admin: bool = False
+    is_verified: bool = True
+    app_id: Optional[str] = None
 
 
 class TokensSchema(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+
+
+class RefreshTokenSchema(BaseModel):
+    refresh_token: str
+
+
+class VerificationConfirmationSchema(BaseModel):
+    confirmation_code: str

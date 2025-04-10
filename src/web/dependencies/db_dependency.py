@@ -6,7 +6,8 @@ from src.settings.general_settings import settings
 class DBDependency:
     def __init__(self) -> None:
         self._engine = create_async_engine(
-            url=settings.db_settings.db_string, echo=settings.db_settings.echo
+            url=settings.db_settings.db_string,
+            echo=settings.db_settings.echo,
         )
         self._session_factory = async_sessionmaker(
             bind=self._engine,

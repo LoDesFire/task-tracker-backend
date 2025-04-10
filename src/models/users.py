@@ -10,7 +10,7 @@ from src.models.mixins.timestamp_mixins import TimestampMixin
 
 
 class Users(Base, TimestampMixin):
-    id: Mapped[int] = mapped_column(
+    id: Mapped[UUID] = mapped_column(
         UUID,
         primary_key=True,
         info={"sortable": False},
@@ -19,20 +19,30 @@ class Users(Base, TimestampMixin):
     )
 
     email: Mapped[str] = mapped_column(
-        String(128), nullable=False, unique=True, index=True
+        String(128),
+        nullable=False,
+        unique=True,
+        index=True,
     )
     username: Mapped[str] = mapped_column(String(256), nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(
-        Text, nullable=False, info={"sortable": False}
+        Text,
+        nullable=False,
+        info={"sortable": False},
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_admin: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False, index=True
+        Boolean,
+        default=False,
+        nullable=False,
+        index=True,
     )
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime, server_default=func.now(), index=True
+        DateTime,
+        server_default=func.now(),
+        index=True,
     )
 
     _sortable_fields: ClassVar[Optional[set]] = None
