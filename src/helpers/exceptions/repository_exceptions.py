@@ -21,5 +21,5 @@ class RepositoryNotCreatedException(RepositoryException):
     """RepositoryNotCreatedException"""
 
 
-class RepositoryIntegrityError(RepositoryException):
-    """RepositoryIntegrityError"""
+class RepositoryIntegrityException(RepositoryException):
+    """RepositoryIntegrityException"""

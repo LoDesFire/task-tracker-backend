@@ -1,12 +1,12 @@
 from typing import Any
 
 import sqlalchemy
-from sqlalchemy import insert, select, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.app.schemas import RegisterUserAppSchema
 from src.helpers.exceptions.repository_exceptions import (
-    RepositoryIntegrityError,
+    RepositoryIntegrityException,
     RepositoryNotFoundException,
 )
 from src.models import Users
@@ -58,7 +58,7 @@ class UserRepository:
         :param user_schema: user's request data
         :return:
         Created user object
-        :raises RepositoryIntegrityError
+        :raises RepositoryIntegrityException
         """
         try:
             async with self.db_session() as session:
@@ -68,7 +68,7 @@ class UserRepository:
                 await session.commit()
 
         except sqlalchemy.exc.IntegrityError as exc:
-            raise RepositoryIntegrityError() from exc
+            raise RepositoryIntegrityException() from exc
 
         return user  # type: ignore
 
@@ -81,7 +81,7 @@ class UserRepository:
         Updates a user fields by email
         :param user_email: email of the user
         :param user_update_data: data to update
-        :raises RepositoryIntegrityError
+        :raises RepositoryIntegrityException
         """
         try:
             async with self.db_session() as session:
@@ -93,4 +93,35 @@ class UserRepository:
                 await session.execute(stmnt)
                 await session.commit()
         except sqlalchemy.exc.IntegrityError as exc:
-            raise RepositoryIntegrityError() from exc
+            raise RepositoryIntegrityException() from exc
+
+    async def update_user(
+        self,
+        user_id: str,
+        user_update_data: dict[str, Any],
+    ) -> Users:
+        try:
+            async with self.db_session() as session:
+                stmnt = (
+                    update(Users)
+                    .where(Users.id == user_id)
+                    .values(**user_update_data)
+                    .returning(Users)
+                )
+                users = await session.scalars(stmnt)
+                await session.commit()
+        except sqlalchemy.exc.IntegrityError as exc:
+            raise RepositoryIntegrityException() from exc
+
+        return users.first()  # type: ignore
+
+    async def delete_user(self, user_id: str):
+        try:
+            async with self.db_session() as session:
+                stmnt = delete(Users).where(Users.id == user_id).returning(Users.id)
+                deleted_user_id = await session.scalars(stmnt)
+                await session.commit()
+        except sqlalchemy.exc.IntegrityError as exc:
+            raise RepositoryIntegrityException() from exc
+
+        return deleted_user_id.first()

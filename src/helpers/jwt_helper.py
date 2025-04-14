@@ -77,8 +77,8 @@ def __sign_token(
     payload.update(data)
     signed_token = jwt.encode(
         payload=payload,
-        key=settings.jwt_settings.secret.get_secret_value(),
-        algorithm="HS256",
+        key=settings.jwt_settings.private_key.get_secret_value(),
+        algorithm="RS256",
     )
     return JWTToken(payload=JWTTokenPayload.model_validate(payload), token=signed_token)
 
@@ -101,8 +101,8 @@ def decode_token(token: str, token_type: JWTTokenType) -> JWTTokenPayload:
                 verify_nbf=True,
                 verify_exp=True,
             ),
-            key=settings.jwt_settings.secret.get_secret_value(),
-            algorithms=["HS256"],
+            key=settings.jwt_settings.public_key,
+            algorithms=["RS256"],
         )
         if decoded_token["type"] != token_type:
             raise JWTDecodeException

@@ -28,5 +28,5 @@ class RedisDependency:
         )
 
     @property
-    def redis_client(self) -> Callable[[], Redis]:
+    def redis_client_factory(self) -> Callable[[], Redis]:
         return partial(Redis, connection_pool=self._conn_pool)

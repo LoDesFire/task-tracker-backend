@@ -22,6 +22,7 @@ dependencies = [
     "bcrypt (>=4.3.0,<5.0.0)",
     "aioboto3 (>=14.1.0,<15.0.0)",
     "types-aiobotocore-ses (>=2.21.1,<3.0.0)",
+    "cryptography (>=44.0.2,<45.0.0)",
 ]
 
 [tool.poetry]

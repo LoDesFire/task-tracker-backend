@@ -83,21 +83,16 @@ class RedisRepository:
             pipeline = await redis.pipeline()
             # Updating apps hash
             await pipeline.hsetnx(apps_hash_name, app_id, "1")
-            await pipeline.hexpireat(
-                apps_hash_name,
-                exp_at_timestamp,
-                app_id,
-                gt=True,
-            )
+            await pipeline.hexpireat(apps_hash_name, exp_at_timestamp, app_id, nx=True)
+            await pipeline.hexpireat(apps_hash_name, exp_at_timestamp, app_id, gt=True)
 
             # Updating tokens hash
             await pipeline.hset(tokens_hash_name, jwt_id, "1")
             await pipeline.hexpireat(tokens_hash_name, exp_at_timestamp, jwt_id)
-            await pipeline.expireat(
-                tokens_hash_name,
-                exp_at_timestamp,
-                gt=exp_at_timestamp,
-            )
+
+            await pipeline.expireat(tokens_hash_name, exp_at_timestamp, nx=True)
+            await pipeline.expireat(tokens_hash_name, exp_at_timestamp, gt=True)
+
             await pipeline.execute()
 
     async def is_token_active(self, app_id: str, jwt_id: str):

@@ -11,7 +11,7 @@ from src.web.dependencies.redis_dependency import RedisDependency
 
 
 def get_redis_repository(redis: RedisDependency = Depends(RedisDependency)):
-    return RedisRepository(redis.redis_client)
+    return RedisRepository(redis.redis_client_factory)
 
 
 def get_jwt_service(redis_repository: RedisRepository = Depends(get_redis_repository)):

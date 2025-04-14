@@ -12,7 +12,7 @@ from src.helpers.cryptography_helper import hash_password, verify_password
 from src.helpers.exceptions.repository_exceptions import (
     RedisRepositoryAlreadyExistsException,
     RedisRepositoryException,
-    RepositoryIntegrityError,
+    RepositoryIntegrityException,
     RepositoryNotFoundException,
 )
 from src.helpers.exceptions.service_exceptions import (
@@ -51,7 +51,7 @@ class AuthService:
     async def register_user(self, register_schema: RegisterInputSchema):
         register_app_schema = RegisterUserAppSchema(
             **register_schema.model_dump(),
-            hashed_password=hash_password(register_schema.password),
+            hashed_password=hash_password(register_schema.password.get_secret_value()),
         )
 
         verification_code = generate_verification_code()
@@ -63,7 +63,7 @@ class AuthService:
                 verification_code,
             )
 
-        except RepositoryIntegrityError as exc:
+        except RepositoryIntegrityException as exc:
             raise RegistrationException("Email is already in use") from exc
 
         with suppress(RedisRepositoryException):
@@ -81,7 +81,9 @@ class AuthService:
         except RepositoryNotFoundException as exc:
             raise LoginException("Invalid email or password") from exc
 
-        if not verify_password(login_schema.password, user.hashed_password):
+        if not verify_password(
+            login_schema.password.get_secret_value(), user.hashed_password
+        ):
             raise LoginException("Invalid email or password")
 
         if not user.is_active:
@@ -135,6 +137,7 @@ class AuthService:
             raise RevokeException("Invalid access token") from exc
 
     async def reset_password(self, access_token_payload: JWTTokenPayload):
+        # TODO: password reset confirmation
         try:
             user = await self.user_repo.get_user_by_id(access_token_payload.sub)
         except RepositoryNotFoundException as exc:
@@ -213,7 +216,7 @@ class AuthService:
             )
         except RepositoryNotFoundException as exc:
             raise VerificationException("Invalid user") from exc
-        except RepositoryIntegrityError as exc:
+        except RepositoryIntegrityException as exc:
             raise VerificationException("Internal error") from exc
         except JWTServiceException:
             pass
