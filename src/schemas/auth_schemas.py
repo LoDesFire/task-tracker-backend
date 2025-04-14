@@ -3,13 +3,11 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
+from src.schemas.password_mixin import PasswordMixin, ValidatedPasswordMixin
+
 
 class EmailMixin(BaseModel):
     email: EmailStr
-
-
-class PasswordMixin(BaseModel):
-    password: str
 
 
 class UsernameMixin(BaseModel):
@@ -20,7 +18,7 @@ class UserEmailSchema(EmailMixin):
     """UserEmailSchema"""
 
 
-class RegisterInputSchema(PasswordMixin, EmailMixin, UsernameMixin):
+class RegisterInputSchema(ValidatedPasswordMixin, EmailMixin, UsernameMixin):
     """RegisterInputSchema"""
 
 

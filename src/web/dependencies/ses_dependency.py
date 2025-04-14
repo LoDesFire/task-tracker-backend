@@ -32,5 +32,5 @@ class SESDependency:
         )
 
     @property
-    def ses_client(self) -> Callable[[], SESClient]:
+    def ses_client_factory(self) -> Callable[[], SESClient]:
         return self._ses_client
