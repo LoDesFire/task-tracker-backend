@@ -4,7 +4,6 @@ from src.app.repositories import UserRepository
 from src.app.repositories.redis_repository import RedisRepository
 from src.app.repositories.ses_repository import SESRepository
 from src.app.services.jwt_service import JWTService
-from src.constants import RevokeTokensScope
 from src.helpers.codes_helper import generate_verification_code
 from src.helpers.cryptography_helper import hash_password, verify_password
 from src.helpers.exceptions.repository_exceptions import (
@@ -39,11 +38,14 @@ class UserService:
         self.redis_repo = redis_repository
 
     async def update_user(
-        self, auth_context: JWTTokenPayload, user_schema: UpdateUserSchema
+        self,
+        auth_context: JWTTokenPayload,
+        user_schema: UpdateUserSchema,
     ):
         try:
-            updated_user = await self.user_repo.update_user(
-                auth_context.sub, user_schema.model_dump()
+            updated_user = await self.user_repo.update(
+                auth_context.sub,
+                **user_schema.model_dump(),
             )
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
@@ -52,30 +54,33 @@ class UserService:
 
     async def get_user(self, auth_context: JWTTokenPayload):
         try:
-            return await self.user_repo.get_user_by_id(auth_context.sub)
+            return await self.user_repo.get_by_id(auth_context.sub)
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
 
     async def delete_user(self, password: SecretStr, auth_context: JWTTokenPayload):
         try:
-            user = await self.user_repo.get_user_by_id(auth_context.sub)
+            user = await self.user_repo.get_by_id(auth_context.sub)
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
-
         if not verify_password(password.get_secret_value(), user.hashed_password):
             raise UserServiceException("Invalid password")
 
         try:
-            await self.jwt_service.revoke_tokens(auth_context, RevokeTokensScope.ALL)
-            await self.user_repo.update_user(auth_context.sub, dict(is_active=False))
+            await self.jwt_service.revoke_all_tokens(
+                subject=auth_context.sub,
+            )
+            await self.user_repo.update(auth_context.sub, **dict(is_active=False))
         except (RepositoryNotFoundException, JWTServiceException) as exc:
             raise UserNotFoundException("Invalid access token") from exc
 
     async def update_password(
-        self, auth_context: JWTTokenPayload, password_schema: UpdatePasswordUserSchema
+        self,
+        auth_context: JWTTokenPayload,
+        password_schema: UpdatePasswordUserSchema,
     ):
         try:
-            user = await self.user_repo.get_user_by_id(auth_context.sub)
+            user = await self.user_repo.get_by_id(auth_context.sub)
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
 
@@ -84,24 +89,28 @@ class UserService:
         ):
             raise UserServiceException("Invalid old password")
 
-        await self.user_repo.update_user(
+        await self.user_repo.update(
             auth_context.sub,
-            dict(
+            **dict(
                 hashed_password=hash_password(
                     password_schema.new_password.get_secret_value()
                 )
             ),
         )
         try:
-            await self.jwt_service.revoke_tokens(auth_context, RevokeTokensScope.ALL)
+            await self.jwt_service.revoke_all_tokens(
+                subject=auth_context.sub,
+            )
         except JWTServiceException as exc:
             raise UserNotFoundException("Invalid access token") from exc
 
     async def update_email(
-        self, email_schema: UpdateEmailUserSchema, auth_context: JWTTokenPayload
+        self,
+        email_schema: UpdateEmailUserSchema,
+        auth_context: JWTTokenPayload,
     ):
         try:
-            user = await self.user_repo.get_user_by_id(auth_context.sub)
+            user = await self.user_repo.get_by_id(auth_context.sub)
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
 
@@ -110,11 +119,13 @@ class UserService:
 
         verification_code = generate_verification_code()
         try:
-            updated_user = await self.user_repo.update_user(
+            updated_user = await self.user_repo.update(
                 auth_context.sub,
-                dict(email=str(email_schema.email), is_verified=False),
+                **dict(email=str(email_schema.email), is_verified=False),
             )
-            await self.jwt_service.revoke_tokens(auth_context, RevokeTokensScope.ALL)
+            await self.jwt_service.revoke_all_tokens(
+                subject=auth_context.sub,
+            )
         except JWTServiceException as exc:
             raise UserNotFoundException("Invalid access token") from exc
         except RepositoryIntegrityException as exc:

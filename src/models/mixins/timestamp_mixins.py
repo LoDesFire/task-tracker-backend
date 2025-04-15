@@ -8,6 +8,7 @@ class CreatedAtMixin:
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
+        default=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None),
     )
 
 
@@ -15,7 +16,7 @@ class UpdatedAtMixin:
     updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
-        server_onupdate=func.now(),
+        default=datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None),
     )
 
 

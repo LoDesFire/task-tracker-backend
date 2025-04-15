@@ -1,5 +1,5 @@
 from src.app.repositories.redis_repository import RedisRepository
-from src.constants import JWTTokenType, RevokeTokensScope
+from src.constants import JWTTokenType
 from src.helpers.exceptions.helpers_exceptions import JWTDecodeException
 from src.helpers.exceptions.repository_exceptions import RedisRepositoryException
 from src.helpers.exceptions.service_exceptions import JWTServiceException
@@ -146,21 +146,28 @@ class JWTService:
             "token_type": "bearer",
         }
 
-    async def revoke_tokens(
-        self, access_token_payload: JWTTokenPayload, scope: RevokeTokensScope
-    ):
-        """
-        Revokes access and refresh tokens
-        :param access_token_payload: payload of access token
-        :param scope: revoke scope
-        :raises JWTServiceException
-        """
+    async def revoke_all_tokens(self, subject: str):
         try:
-            await self.redis_repo.revoke_tokens(
-                access_token_payload.sub,
-                access_token_payload.app_id,
-                access_token_payload.jwt_id,
-                scope,
+            await self.redis_repo.revoke_all_tokens(
+                subject=subject,
+            )
+        except RedisRepositoryException as exc:
+            raise JWTServiceException(internal_message=exc.message) from exc
+
+    async def revoke_current_app_tokens(self, subject: str, app_id: str):
+        try:
+            await self.redis_repo.revoke_current_app_tokens(
+                subject=subject,
+                app_id=app_id,
+            )
+        except RedisRepositoryException as exc:
+            raise JWTServiceException(internal_message=exc.message) from exc
+
+    async def revoke_current_token(self, app_id: str, jwt_id: str):
+        try:
+            await self.redis_repo.revoke_current_token(
+                app_id=app_id,
+                jwt_id=jwt_id,
             )
         except RedisRepositoryException as exc:
             raise JWTServiceException(internal_message=exc.message) from exc

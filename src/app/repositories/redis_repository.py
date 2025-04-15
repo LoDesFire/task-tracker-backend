@@ -4,7 +4,6 @@ from typing import Callable
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
-from src.constants import RevokeTokensScope
 from src.helpers.exceptions.repository_exceptions import (
     RedisRepositoryAlreadyExistsException,
     RedisRepositoryException,
@@ -107,53 +106,34 @@ class RedisRepository:
         except RedisError as exc:
             raise RedisRepositoryException("Unable to obtain token activity") from exc
 
-    async def revoke_tokens(
-        self,
-        subject: str,
-        app_id: str,
-        jwt_id: str,
-        scope: RevokeTokensScope,
-    ):
-        """
-        Removes suitable tokens from the Redis according to the given scope
-        :param subject: sub in the jwt token
-        :param app_id: app_id in the jwt token
-        :param jwt_id: jwt_id in jwt token
-        :param scope: revoke scope
-        :raises RedisRepositoryException:
-        """
+    async def revoke_all_tokens(self, subject: str):
+        apps_hash_name = self.user_apps_hash(subject)
+        async with self.__redis_factory() as redis:
+            try:
+                async for iter_app_id, val in redis.hscan_iter(apps_hash_name):
+                    await redis.delete(self.app_tokens_hash(iter_app_id.decode()))
+                await redis.delete(apps_hash_name)
+            except RedisError as exc:
+                raise RedisRepositoryException("Failed to revoke the tokens") from exc
+
+    async def revoke_current_app_tokens(self, subject: str, app_id: str):
         apps_hash_name = self.user_apps_hash(subject)
         tokens_hash_name = self.app_tokens_hash(app_id)
-        try:
-            await self.__delete_token_records(
-                scope,
-                apps_hash_name,
-                app_id,
-                tokens_hash_name,
-                jwt_id,
-            )
-        except RedisError as exc:
-            raise RedisRepositoryException("Failed to revoke the tokens") from exc
-
-    async def __delete_token_records(
-        self,
-        scope: RevokeTokensScope,
-        apps_hash_name: str,
-        app_id: str,
-        tokens_hash_name: str,
-        jwt_id: str,
-    ):
         async with self.__redis_factory() as redis:
-            match scope:
-                case RevokeTokensScope.CURRENT_APP:
-                    await redis.hdel(apps_hash_name, app_id)
-                    await redis.delete(tokens_hash_name)
-                case RevokeTokensScope.ALL:
-                    async for iter_app_id, val in redis.hscan_iter(apps_hash_name):
-                        await redis.delete(self.app_tokens_hash(iter_app_id.decode()))
-                    await redis.delete(apps_hash_name)
-                case RevokeTokensScope.THE_TOKEN:
-                    await redis.hdel(tokens_hash_name, jwt_id)
+            try:
+                await redis.hdel(apps_hash_name, app_id)
+                await redis.delete(tokens_hash_name)
+            except RedisError as exc:
+                raise RedisRepositoryException("Failed to revoke the tokens") from exc
+
+    async def revoke_current_token(self, app_id: str, jwt_id: str):
+        tokens_hash_name = self.app_tokens_hash(app_id)
+
+        async with self.__redis_factory() as redis:
+            try:
+                await redis.hdel(tokens_hash_name, jwt_id)
+            except RedisError as exc:
+                raise RedisRepositoryException("Failed to revoke the token") from exc
 
     async def create_verification_code_record(
         self,

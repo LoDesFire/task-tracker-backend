@@ -7,11 +7,7 @@ from src.app.services.jwt_service import JWTService
 from src.constants import JWTTokenType
 from src.helpers.exceptions.service_exceptions import JWTServiceException
 from src.helpers.jwt_helper import JWTTokenPayload
-from src.web.dependencies.redis_dependency import RedisDependency
-
-
-def get_redis_repository(redis: RedisDependency = Depends(RedisDependency)):
-    return RedisRepository(redis.redis_client_factory)
+from src.web.dependencies.repository_dependencies import get_redis_repository
 
 
 def get_jwt_service(redis_repository: RedisRepository = Depends(get_redis_repository)):

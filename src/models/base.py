@@ -3,6 +3,8 @@ from typing import Type, TypeVar
 from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
+from src.models.mixins.uuid_mixin import UUIDMixin
+
 
 class Base(DeclarativeBase):
     @declared_attr
@@ -15,3 +17,7 @@ class Base(DeclarativeBase):
 
     def to_pydantic(self, pydantic_cls: Type[__T]):
         return pydantic_cls(**self.__dict__)
+
+
+class UUIDBase(Base, UUIDMixin):
+    __abstract__ = True
