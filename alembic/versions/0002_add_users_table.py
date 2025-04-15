@@ -2,7 +2,7 @@
 
 Revision ID: 0002
 Revises: 0001
-Create Date: 2025-04-02 13:04:38.385667
+Create Date: 2025-04-11 21:53:07.375338
 
 """
 
@@ -17,6 +17,15 @@ revision: str = "0002"
 down_revision: Union[str, None] = "0001"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+create_trigger = """
+    CREATE TRIGGER trig_{table}_updated BEFORE UPDATE ON {schema}.{table}
+    FOR EACH ROW EXECUTE PROCEDURE {schema}.refresh_updated_at();
+    """
+
+drop_trigger = """
+    DROP TRIGGER trig_{table}_updated ON {schema}.{table};
+"""
 
 
 def upgrade() -> None:
@@ -68,10 +77,12 @@ def upgrade() -> None:
         unique=False,
         schema="auth",
     )
+    op.execute(sa.text(create_trigger.format(schema="auth", table="users")))
 
 
 def downgrade() -> None:
     """Downgrade schema."""
+    op.execute(sa.text(drop_trigger.format(schema="auth", table="users")))
     op.drop_index(op.f("ix_auth_users_username"), table_name="users", schema="auth")
     op.drop_index(op.f("ix_auth_users_is_admin"), table_name="users", schema="auth")
     op.drop_index(op.f("ix_auth_users_email"), table_name="users", schema="auth")

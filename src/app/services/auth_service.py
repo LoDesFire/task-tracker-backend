@@ -26,6 +26,7 @@ from src.helpers.exceptions.service_exceptions.auth_exceptions import (
     VerificationException,
 )
 from src.helpers.jwt_helper import JWTTokenPayload
+from src.models import Users
 from src.schemas import RegisterInputSchema
 from src.schemas.auth_schemas import (
     JWTPayloadUserSchema,
@@ -56,7 +57,8 @@ class AuthService:
 
         verification_code = generate_verification_code()
         try:
-            user = await self.user_repo.create_user(register_app_schema)
+            user = Users(**register_app_schema.model_dump())
+            user = await self.user_repo.create(user)
 
             await self.ses_repo.send_verification_code_email(
                 user.email,
@@ -104,7 +106,7 @@ class AuthService:
             raise RefreshingException("Invalid refresh token") from exc
 
         try:
-            user = await self.user_repo.get_user_by_id(user_id=decoded_token.sub)
+            user = await self.user_repo.get_by_id(decoded_token.sub)
         except RepositoryNotFoundException as exc:
             raise RefreshingException("Invalid refresh token") from exc
 
@@ -129,17 +131,33 @@ class AuthService:
         )
 
     async def revoke_user_tokens(
-        self, access_token_payload: JWTTokenPayload, scope: RevokeTokensScope
+        self,
+        access_token_payload: JWTTokenPayload,
+        scope: RevokeTokensScope,
     ):
         try:
-            await self.jwt_service.revoke_tokens(access_token_payload, scope)
+            match scope:
+                case RevokeTokensScope.ALL:
+                    await self.jwt_service.revoke_all_tokens(
+                        subject=access_token_payload.sub,
+                    )
+                case RevokeTokensScope.CURRENT_APP:
+                    await self.jwt_service.revoke_current_app_tokens(
+                        subject=access_token_payload.sub,
+                        app_id=access_token_payload.app_id,
+                    )
+                case RevokeTokensScope.THE_TOKEN:
+                    await self.jwt_service.revoke_current_token(
+                        app_id=access_token_payload.app_id,
+                        jwt_id=access_token_payload.jwt_id,
+                    )
         except JWTServiceException as exc:
             raise RevokeException("Invalid access token") from exc
 
     async def reset_password(self, access_token_payload: JWTTokenPayload):
         # TODO: password reset confirmation
         try:
-            user = await self.user_repo.get_user_by_id(access_token_payload.sub)
+            user = await self.user_repo.get_by_id(access_token_payload.sub)
         except RepositoryNotFoundException as exc:
             raise RefreshingException("Invalid access token") from exc
 
@@ -154,9 +172,8 @@ class AuthService:
             password=new_password,
         )
 
-        await self.jwt_service.revoke_tokens(
-            access_token_payload,
-            RevokeTokensScope.ALL,
+        await self.jwt_service.revoke_all_tokens(
+            subject=access_token_payload.subject,
         )
 
         await self.user_repo.update_user_by_email(
@@ -169,7 +186,7 @@ class AuthService:
             raise VerificationException("User is already verified")
 
         try:
-            user = await self.user_repo.get_user_by_id(access_token_payload.sub)
+            user = await self.user_repo.get_by_id(access_token_payload.sub)
         except RepositoryNotFoundException as exc:
             raise VerificationException("Invalid access token") from exc
 
@@ -205,14 +222,14 @@ class AuthService:
             raise VerificationException("Invalid verification code")
 
         try:
-            user = await self.user_repo.get_user_by_id(access_token_payload.sub)
+            user = await self.user_repo.get_by_id(access_token_payload.sub)
             await self.user_repo.update_user_by_email(
                 user_email=user.email,
                 user_update_data=dict(is_verified=True),
             )
-            await self.jwt_service.revoke_tokens(
-                access_token_payload,
-                RevokeTokensScope.THE_TOKEN,
+            await self.jwt_service.revoke_current_token(
+                app_id=access_token_payload.app_id,
+                jwt_id=access_token_payload.jwt_id,
             )
         except RepositoryNotFoundException as exc:
             raise VerificationException("Invalid user") from exc

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, SecretStr, model_validator
+from pydantic import BaseModel, EmailStr, Field, SecretStr, model_validator
 from typing_extensions import Self
 
 from src.schemas.password_mixin import PasswordMixin, PasswordValidatorMixin
@@ -26,7 +26,15 @@ class UpdatePasswordUserSchema(BaseModel, PasswordValidatorMixin):
 
 
 class UpdateUserSchema(BaseModel):
-    username: Optional[str]
+    username: Optional[str] = Field(None)
+
+    @model_validator(mode="after")
+    def check_at_least_one_field(self):
+        for field_name, field_val in self.model_dump().items():
+            if field_val is not None:
+                return self
+
+        raise ValueError("Must have at least one field")
 
 
 class UserOutputSchema(BaseModel):

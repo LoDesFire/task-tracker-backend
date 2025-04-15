@@ -12,6 +12,7 @@ from src.settings.general_settings import settings
 
 
 class JWTTokenPayload(BaseModel):
+    # TODO: Add is_archived field for dearchiving account when logs in
     exp: int
     iat: int
     nbf: int
