@@ -18,6 +18,7 @@ class ProjectUsers(models.Model):
     permissions = models.ManyToManyField(
         Permission,
         through="ProjectUserPermissions",
+        verbose_name="project_user_permissions",
     )
 
     class Meta:
@@ -31,9 +32,12 @@ class ProjectUserPermissions(models.Model):
         db_index=False,
     )
     project_user = models.ForeignKey(ProjectUsers, on_delete=models.CASCADE)
+    restrict = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (("project_user", "permission"),)
+        default_permissions = ()
+        permissions = ()
 
 
 class Projects(models.Model):
