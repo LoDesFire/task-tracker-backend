@@ -25,18 +25,22 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.oauth.authentication.OAuth2Authentication",
-        # "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "apps.oauth.permissions.IsVerifiedAndAuthenticated",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 AUTHENTICATION_BACKENDS = [
-    "apps.oauth.authentication.OAuth2AuthenticationBackend",
+    "apps.oauth.authentication.DjangoOAuthBackend",
 ]
 
 MIDDLEWARE = [

@@ -4,14 +4,42 @@ from django.db import migrations
 
 
 def create_default_group(apps, schema_editor):
-    group, created = Group.objects.get_or_create(name="Users")
-
-    permissions = Permission.objects.filter(
+    user_group, _ = Group.objects.get_or_create(name="Users")
+    user_group_permissions = Permission.objects.filter(
         content_type__model__in=["tasks", "taskassignees", "projectusers", "projects"],
         content_type__app_label="todo",
     )
+    user_group.permissions.set(user_group_permissions)
 
-    group.permissions.set(permissions)
+    project_all_group, _ = Group.objects.get_or_create(name="Project All")
+    project_all_group_permissions = Permission.objects.filter(
+        content_type__model__in=[
+            "tasks",
+            "task_assignees",
+            "projectusers",
+            "projectuserpermissions",
+            "projectuserpermissiongroups",
+        ]
+    )
+    project_all_group.permissions.set(project_all_group_permissions)
+
+    project_user_group, _ = Group.objects.get_or_create(name="Project Users")
+    project_user_group_permissions = Permission.objects.filter(
+        content_type__model__in=["tasks", "taskassignees"],
+        content_type__app_label="todo",
+    )
+    project_user_group.permissions.set(project_user_group_permissions)
+
+    project_moderator_group, _ = Group.objects.get_or_create(name="Project Moderators")
+    project_moderator_group_permissions = Permission.objects.filter(
+        content_type__model__in=[
+            "tasks",
+            "taskassignees",
+            "projectusers",
+        ],
+        content_type__app_label="todo",
+    )
+    project_moderator_group.permissions.set(project_moderator_group_permissions)
 
 
 def remove_default_group(apps, schema_editor):
@@ -19,9 +47,9 @@ def remove_default_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("oauth", "0001_initial"),
+        ("todo", "0001_initial"),
         ("auth", "0012_alter_user_first_name_max_length"),
     ]
 

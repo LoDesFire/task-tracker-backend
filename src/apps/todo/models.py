@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.contrib.postgres.indexes import BTreeIndex
 from django.db import models
 
@@ -9,7 +9,10 @@ from apps.oauth.models import Users
 
 class ProjectUsers(models.Model):
     id = models.BigAutoField(primary_key=True)
-    project = models.ForeignKey("Projects", on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        "Projects",
+        on_delete=models.CASCADE,
+    )
     user = models.ForeignKey(Users, on_delete=models.RESTRICT)
     is_owner = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -20,9 +23,15 @@ class ProjectUsers(models.Model):
         through="ProjectUserPermissions",
         verbose_name="project_user_permissions",
     )
+    groups = models.ManyToManyField(
+        Group,
+        through="ProjectUserPermissionGroups",
+        verbose_name="project_user_permission_groups",
+    )
 
     class Meta:
         unique_together = (("project", "user"),)
+        db_table = "project_users"
 
 
 class ProjectUserPermissions(models.Model):
@@ -36,8 +45,20 @@ class ProjectUserPermissions(models.Model):
 
     class Meta:
         unique_together = (("project_user", "permission"),)
-        default_permissions = ()
-        permissions = ()
+        db_table = "project_user_permissions"
+
+
+class ProjectUserPermissionGroups(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        db_index=False,
+    )
+    project_user = models.ForeignKey(ProjectUsers, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("group", "project_user"),)
+        db_table = "project_user_permission_groups"
 
 
 class Projects(models.Model):
@@ -69,6 +90,7 @@ class TaskAssignees(models.Model):
 
     class Meta:
         unique_together = (("project_user", "task"),)
+        db_table = "task_assignees"
 
 
 class Tasks(models.Model):

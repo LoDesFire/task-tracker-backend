@@ -6,4 +6,4 @@ from api.todo.view_sets.tasks_view_set import TasksViewSet
 router = SimpleRouter(trailing_slash=False)
 
 router.register(r"tasks", TasksViewSet)
-router.register(r"projects", ProjectsViewSet)
+router.register(r"projects", ProjectsViewSet, basename="projects")

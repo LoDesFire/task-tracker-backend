@@ -40,7 +40,7 @@ class UsersManager(BaseUserManager):
         user.is_superuser = decoded_jwt.is_admin
         user.is_active = True
         user.save()
-        user.groups.add(Group.objects.get(name="Users"))
+        user.groups.add(Group.objects.get(name="Users"), through_defaults={})
 
         return user
 
@@ -55,6 +55,14 @@ class Users(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    groups = models.ManyToManyField(
+        Group,
+        through="UserGroups",
+        verbose_name="user_groups",
+        blank=True,
+        related_name="user_set",
+        related_query_name="user",
+    )
     user_permissions = models.ManyToManyField(
         Permission,
         blank=True,
@@ -69,6 +77,19 @@ class Users(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "id"
 
 
+class UserGroups(models.Model):
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.CASCADE,
+        db_index=False,
+    )
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("group", "user"),)
+        db_table = "user_groups"
+
+
 class UserPermissions(models.Model):
     permission = models.ForeignKey(
         Permission,
@@ -80,5 +101,4 @@ class UserPermissions(models.Model):
 
     class Meta:
         unique_together = (("user", "permission"),)
-        default_permissions = ()
-        permissions = ()
+        db_table = "user_permissions"

@@ -1,13 +1,19 @@
 from rest_framework import permissions
 
 
-class DjangoFullModelPermissions(permissions.DjangoModelPermissions):
-    perms_map = {
-        "GET": ["%(app_label)s.view_%(model_name)s"],
-        "OPTIONS": ["%(app_label)s.view_%(model_name)s"],
-        "HEAD": ["%(app_label)s.view_%(model_name)s"],
-        "POST": ["%(app_label)s.add_%(model_name)s"],
-        "PUT": ["%(app_label)s.change_%(model_name)s"],
-        "PATCH": ["%(app_label)s.change_%(model_name)s"],
-        "DELETE": ["%(app_label)s.delete_%(model_name)s"],
-    }
+class IsVerifiedAndAuthenticated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user and request.user.is_authenticated and request.user.is_verified
+        )
+
+
+class DjangoPermissions(permissions.DjangoModelPermissions):
+    def __init__(self, *required_permissions):
+        self.required_permissions = set(required_permissions)
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def has_permission(self, request, view):
+        return request.user.has_perms(self.required_permissions)
