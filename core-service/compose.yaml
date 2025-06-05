@@ -1,0 +1,38 @@
+services:
+  todo-django-core-ms:
+    container_name: todo-django-core-ms
+    build:
+      context: ..
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - third-party-services
+  todo-django-core-celery:
+    container_name: todo-django-core-celery
+    build:
+      context: ..
+    entrypoint: /code/.venv/bin/celery -A config worker -B  -l INFO
+    environment:
+      - PYTHONPATH=/code/src
+    env_file:
+      - .docker.env
+    networks:
+      - third-party-services
+  todo-django-core-kafka-consumer:
+    container_name: todo-django-core-kafka-consumer
+    build:
+      context: ..
+    entrypoint: /code/.venv/bin/python /code/src/manage.py run_kafka_consumer
+    environment:
+      - PYTHONPATH=/code/src
+    env_file:
+      - .docker.env
+    networks:
+      - third-party-services
+
+networks:
+  third-party-services:
+    name: thirdparty_services_third-party-services-net
+    external: true

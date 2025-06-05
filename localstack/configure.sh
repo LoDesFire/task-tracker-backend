@@ -1,1 +1,0 @@
-sudo docker exec "$(docker ps -qf 'name=localstack-main')" awslocal ses verify-email-identity --email no-reply@example.com
