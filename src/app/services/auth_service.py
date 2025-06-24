@@ -1,12 +1,13 @@
 import random
 from contextlib import suppress
 
+from src.app.repositories.kafka_repository import KafkaRepository
 from src.app.repositories.redis_repository import RedisRepository
 from src.app.repositories.ses_repository import SESRepository
 from src.app.repositories.user_repository import UserRepository
 from src.app.schemas import RegisterUserAppSchema
 from src.app.services.jwt_service import JWTService
-from src.constants import JWTTokenType, RevokeTokensScope
+from src.constants import JWTTokenType, KafkaUserEventTypes, RevokeTokensScope
 from src.helpers.codes_helper import generate_password, generate_verification_code
 from src.helpers.cryptography_helper import hash_password, verify_password
 from src.helpers.exceptions.repository_exceptions import (
@@ -34,6 +35,7 @@ from src.schemas.auth_schemas import (
     RefreshTokenSchema,
     RegistrationOutputSchema,
 )
+from src.schemas.kafka_schemas import UserInfoSchema
 
 
 class AuthService:
@@ -43,11 +45,13 @@ class AuthService:
         jwt_service: JWTService,
         redis_repo: RedisRepository,
         ses_repo: SESRepository,
+        kafka_repository: KafkaRepository,
     ):
         self.user_repo = user_repo
         self.jwt_service = jwt_service
         self.redis_repo = redis_repo
         self.ses_repo = ses_repo
+        self.kafka_repo = kafka_repository
 
     async def register_user(self, register_schema: RegisterInputSchema):
         register_app_schema = RegisterUserAppSchema(
@@ -64,14 +68,22 @@ class AuthService:
                 user.email,
                 verification_code,
             )
-
         except RepositoryIntegrityException as exc:
             raise RegistrationException("Email is already in use") from exc
+
+        await self.kafka_repo.produce_user_event(
+            event_type=KafkaUserEventTypes.REGISTRATION,
+            user_info=UserInfoSchema(
+                id=str(user.id),
+                email=user.email,
+                username=user.username,
+            ),
+        )
 
         with suppress(RedisRepositoryException):
             await self.redis_repo.create_verification_code_record(
                 verification_code,
-                str(user.id),
+                user.id,
                 is_force=True,
             )
 
@@ -92,7 +104,7 @@ class AuthService:
             raise LoginException("Your account is blocked")
 
         return await self.jwt_service.issue_token_pair(
-            str(user.id),
+            user.id,
             JWTPayloadUserSchema(is_admin=user.is_admin, is_verified=user.is_verified),
         )
 
@@ -173,7 +185,7 @@ class AuthService:
         )
 
         await self.jwt_service.revoke_all_tokens(
-            subject=access_token_payload.subject,
+            subject=access_token_payload.sub,
         )
 
         await self.user_repo.update_user_by_email(

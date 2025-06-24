@@ -10,6 +10,7 @@ from src.helpers.jwt_helper import (
     create_refresh_token,
     decode_token,
 )
+from src.models.users import UsersIDType
 from src.schemas.auth_schemas import JWTPayloadUserSchema
 
 
@@ -19,7 +20,7 @@ class JWTService:
 
     async def __issue_access_token(
         self,
-        subject: str,
+        subject: UsersIDType,
         payload: JWTPayloadUserSchema,
     ) -> JWTToken:
         """
@@ -44,7 +45,7 @@ class JWTService:
 
     async def __issue_refresh_token(
         self,
-        subject: str,
+        subject: UsersIDType,
         app_id: str | None = None,
     ) -> JWTToken:
         """
@@ -67,7 +68,9 @@ class JWTService:
 
         return jwt_token
 
-    async def issue_token_pair(self, subject: str, payload: JWTPayloadUserSchema):
+    async def issue_token_pair(
+        self, subject: UsersIDType, payload: JWTPayloadUserSchema
+    ):
         """
         Creates the couple of access and refresh tokens with a similar app_id
         :param subject: user's id
@@ -146,7 +149,7 @@ class JWTService:
             "token_type": "bearer",
         }
 
-    async def revoke_all_tokens(self, subject: str):
+    async def revoke_all_tokens(self, subject: UsersIDType):
         try:
             await self.redis_repo.revoke_all_tokens(
                 subject=subject,
@@ -154,7 +157,7 @@ class JWTService:
         except RedisRepositoryException as exc:
             raise JWTServiceException(internal_message=exc.message) from exc
 
-    async def revoke_current_app_tokens(self, subject: str, app_id: str):
+    async def revoke_current_app_tokens(self, subject: UsersIDType, app_id: str):
         try:
             await self.redis_repo.revoke_current_app_tokens(
                 subject=subject,

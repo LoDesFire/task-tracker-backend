@@ -8,6 +8,7 @@ from src.helpers.exceptions.repository_exceptions import (
     RedisRepositoryAlreadyExistsException,
     RedisRepositoryException,
 )
+from src.models.users import UsersIDType
 from src.settings.general_settings import settings
 
 
@@ -25,26 +26,26 @@ class RedisRepository:
         return f"{settings.redis_settings.app_tokens_hash_prefix}:{app_id}"
 
     @staticmethod
-    def user_apps_hash(subject):
+    def user_apps_hash(subject: UsersIDType):
         """
         :param subject: sub in the jwt token
         :return:
         Prefix for the user apps hash object in the Redis
         """
-        return f"{settings.redis_settings.user_apps_hash_prefix}:{subject}"
+        return f"{settings.redis_settings.user_apps_hash_prefix}:{subject.hex}"
 
     @staticmethod
-    def verif_code_name(subject: str):
+    def verif_code_name(subject: UsersIDType):
         """
         :param subject: sub in the jwt token
         :return:
         Prefix for the verification code object in the Redis
         """
-        return f"{settings.redis_settings.verification_codes_hash_prefix}:{subject}"
+        return f"{settings.redis_settings.verification_codes_hash_prefix}:{subject.hex}"
 
     async def create_token_record(
         self,
-        subject: str,
+        subject: UsersIDType,
         app_id: str,
         jwt_id: str,
         exp_at_timestamp: int,
@@ -106,7 +107,7 @@ class RedisRepository:
         except RedisError as exc:
             raise RedisRepositoryException("Unable to obtain token activity") from exc
 
-    async def revoke_all_tokens(self, subject: str):
+    async def revoke_all_tokens(self, subject: UsersIDType):
         apps_hash_name = self.user_apps_hash(subject)
         async with self.__redis_factory() as redis:
             try:
@@ -116,7 +117,7 @@ class RedisRepository:
             except RedisError as exc:
                 raise RedisRepositoryException("Failed to revoke the tokens") from exc
 
-    async def revoke_current_app_tokens(self, subject: str, app_id: str):
+    async def revoke_current_app_tokens(self, subject: UsersIDType, app_id: str):
         apps_hash_name = self.user_apps_hash(subject)
         tokens_hash_name = self.app_tokens_hash(app_id)
         async with self.__redis_factory() as redis:
@@ -138,7 +139,7 @@ class RedisRepository:
     async def create_verification_code_record(
         self,
         verification_code: str,
-        subject: str,
+        subject: UsersIDType,
         is_force: bool = False,
     ):
         """
@@ -171,7 +172,7 @@ class RedisRepository:
     async def check_verification_code(
         self,
         verification_code: str,
-        subject: str,
+        subject: UsersIDType,
     ) -> bool:
         """
         Checks verification code with the given verification_code

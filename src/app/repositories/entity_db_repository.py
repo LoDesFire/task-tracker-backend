@@ -12,10 +12,10 @@ from src.helpers.exceptions.repository_exceptions import (
     RepositoryIntegrityException,
     RepositoryNotFoundException,
 )
-from src.models.base import UUIDBase
+from src.models.base import IDBase
+from src.models.mixins.id_mixin import IDType
 
-_T = TypeVar("_T", bound=UUIDBase)
-IDType = str
+_T = TypeVar("_T", bound=IDBase)
 
 
 class EntityDbRepository(Generic[_T]):

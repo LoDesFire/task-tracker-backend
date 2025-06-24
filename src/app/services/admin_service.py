@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from src.app.repositories import UserRepository
 from src.app.services.jwt_service import JWTService
 from src.helpers.exceptions.repository_exceptions import (
@@ -11,6 +9,7 @@ from src.helpers.exceptions.service_exceptions.admin_exceptions import (
     AdminUserNotFoundException,
 )
 from src.schemas.admin_schemas import GetUsersAdminSchema, UpdateUserAdminSchema
+from src.schemas.user_schemas import UsersIDType
 
 
 class AdminService:
@@ -37,43 +36,43 @@ class AdminService:
 
     async def update_user(
         self,
-        user_id: UUID,
+        user_id: UsersIDType,
         update_user_schema: UpdateUserAdminSchema,
     ):
         try:
-            await self.user_repo.get_by_id(str(user_id))
+            await self.user_repo.get_by_id(user_id)
         except RepositoryNotFoundException as exc:
             raise AdminUserNotFoundException(
                 f"User with id {user_id} not found"
             ) from exc
 
         return await self.user_repo.update(
-            str(user_id),
+            user_id,
             **update_user_schema.model_dump(exclude_defaults=True),
         )
 
-    async def deactivate_user(self, user_id: UUID):
+    async def deactivate_user(self, user_id: UsersIDType):
         try:
-            await self.user_repo.get_by_id(str(user_id))
+            await self.user_repo.get_by_id(user_id)
         except RepositoryNotFoundException as exc:
             raise AdminUserNotFoundException(
                 f"User with id {user_id} not found"
             ) from exc
 
-        await self.jwt_service.revoke_all_tokens(str(user_id))
-        return await self.user_repo.update(str(user_id), **dict(is_active=False))
+        await self.jwt_service.revoke_all_tokens(user_id)
+        return await self.user_repo.update(user_id, **dict(is_active=False))
 
-    async def delete_user(self, user_id: UUID):
+    async def delete_user(self, user_id: UsersIDType):
         try:
-            await self.user_repo.get_by_id(str(user_id))
+            await self.user_repo.get_by_id(user_id)
         except RepositoryNotFoundException as exc:
             raise AdminUserNotFoundException(
                 f"User with id {user_id} not found"
             ) from exc
 
-        await self.jwt_service.revoke_all_tokens(str(user_id))
+        await self.jwt_service.revoke_all_tokens(user_id)
         try:
-            deleted_user_id = await self.user_repo.delete(str(user_id))
+            deleted_user_id = await self.user_repo.delete(user_id)
         except RepositoryIntegrityException as exc:
             raise AdminServiceException("Internal error") from exc
 

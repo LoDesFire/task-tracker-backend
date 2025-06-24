@@ -15,3 +15,8 @@ class RevokeTokensScope(StrEnum):
     THE_TOKEN = "the-token"
     CURRENT_APP = "current-app"
     # TODO: App by it id
+
+
+class KafkaUserEventTypes(StrEnum):
+    REGISTRATION = "registration"
+    UPDATE = "update"

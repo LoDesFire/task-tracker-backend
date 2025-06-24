@@ -8,6 +8,9 @@ class DBDependency:
         self._engine = create_async_engine(
             url=settings.db_settings.db_string,
             echo=settings.db_settings.echo,
+            connect_args={
+                "timeout": 5,
+            },
         )
         self._session_factory = async_sessionmaker(
             bind=self._engine,
