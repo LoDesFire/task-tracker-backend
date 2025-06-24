@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from src.constants import JWTTokenType
 from src.helpers.exceptions.helpers_exceptions import JWTDecodeException
+from src.models.users import UsersIDType
 from src.schemas.auth_schemas import JWTPayloadUserSchema
 from src.settings.general_settings import settings
 
@@ -18,7 +19,7 @@ class JWTTokenPayload(BaseModel):
     nbf: int
     app_id: str
     jwt_id: str
-    sub: str
+    sub: UsersIDType
     type: JWTTokenType
     is_admin: bool = False
     is_verified: bool = True
@@ -43,7 +44,7 @@ class JWTToken:
 
 def __sign_token(
     token_type: JWTTokenType,
-    subject: str,
+    subject: UsersIDType,
     payload: dict[str, Any] | None = None,
     ttl: datetime.timedelta = datetime.timedelta(minutes=1),
 ) -> JWTToken:
@@ -64,7 +65,7 @@ def __sign_token(
     data = dict(
         type=token_type,
         iat=current_timestamp,
-        sub=subject,
+        sub=subject.hex,
         app_id=(
             str(uuid.uuid4())
             if payload.get("app_id", None) is None
@@ -113,7 +114,9 @@ def decode_token(token: str, token_type: JWTTokenType) -> JWTTokenPayload:
     return JWTTokenPayload.model_validate(decoded_token)
 
 
-def create_access_token(subject: str, jwt_payload: JWTPayloadUserSchema) -> JWTToken:
+def create_access_token(
+    subject: UsersIDType, jwt_payload: JWTPayloadUserSchema
+) -> JWTToken:
     """
     Create access token
     :param subject: user's email in the database
@@ -129,7 +132,7 @@ def create_access_token(subject: str, jwt_payload: JWTPayloadUserSchema) -> JWTT
     )
 
 
-def create_refresh_token(subject: str, app_id: str | None = None) -> JWTToken:
+def create_refresh_token(subject: UsersIDType, app_id: str | None = None) -> JWTToken:
     """
     Create refresh token
     :param app_id: ID of the tokens family

@@ -10,6 +10,7 @@ from src.helpers.exceptions.repository_exceptions import (
     RepositoryNotFoundException,
 )
 from src.models import Users
+from src.models.mixins.id_mixin import IDType
 
 
 class UserRepository(EntityDbRepository[Users]):
@@ -18,6 +19,12 @@ class UserRepository(EntityDbRepository[Users]):
     def __init__(self, db_session: async_sessionmaker[AsyncSession]) -> None:
         super().__init__(db_session)
         self.db_session = db_session
+
+    async def get_users(self, user_ids: list[IDType]) -> list[Users]:
+        async with self.db_session() as session:
+            stmt = select(Users).where(Users.id.in_(user_ids))
+            scalar_res = await session.scalars(stmt)
+            return list(scalar_res.all())
 
     async def get_user_by_email(self, email: str) -> Users:
         """

@@ -1,14 +1,24 @@
 import datetime
+import uuid
 from typing import ClassVar, Optional
 
-from sqlalchemy import Boolean, DateTime, String, Text, func
+from sqlalchemy import UUID, Boolean, DateTime, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.models.base import UUIDBase
+from src.models.base import IDBase
 from src.models.mixins.timestamp_mixins import TimestampMixin
 
+UsersIDType = uuid.UUID
 
-class Users(UUIDBase, TimestampMixin):
+
+class Users(IDBase, TimestampMixin):
+    id: Mapped[UsersIDType] = mapped_column(
+        UUID,
+        primary_key=True,
+        info={"sortable": False},
+        default=uuid.uuid4,
+        server_default=text("uuid_generate_v4()"),
+    )
     email: Mapped[str] = mapped_column(
         String(128),
         nullable=False,

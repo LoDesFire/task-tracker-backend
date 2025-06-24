@@ -1,5 +1,4 @@
 from typing import Annotated
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
@@ -16,6 +15,7 @@ from src.schemas.admin_schemas import (
     UpdateUserAdminSchema,
     UserIdAdminSchema,
 )
+from src.schemas.user_schemas import UsersIDType
 from src.web.dependencies.auth_dependency import auth_dependency
 
 from .dependencies import get_admin_service
@@ -34,7 +34,7 @@ async def get_users(
 
 @admin_v1_router.delete("/user/{user_id}", response_model=UserIdAdminSchema)
 async def delete_user(
-    user_id: UUID,
+    user_id: UsersIDType,
     _: JWTTokenPayload = Depends(auth_dependency(is_admin=True)),
     admin_service: AdminService = Depends(get_admin_service),
 ):
@@ -50,7 +50,7 @@ async def delete_user(
     "/user/deactivate/{user_id}", response_model=OutputUserAdminSchema
 )
 async def deactivate_user(
-    user_id: UUID,
+    user_id: UsersIDType,
     _: JWTTokenPayload = Depends(auth_dependency(is_admin=True)),
     admin_service: AdminService = Depends(get_admin_service),
 ):
@@ -64,7 +64,7 @@ async def deactivate_user(
 
 @admin_v1_router.put("/user/{user_id}", response_model=OutputUserAdminSchema)
 async def update_user(
-    user_id: UUID,
+    user_id: UsersIDType,
     request_params: UpdateUserAdminSchema,
     _: JWTTokenPayload = Depends(auth_dependency(is_admin=True)),
     admin_service: AdminService = Depends(get_admin_service),

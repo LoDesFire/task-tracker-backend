@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, SecretStr, model_validator
 from typing_extensions import Self
 
+from src.models.users import UsersIDType
 from src.schemas.password_mixin import PasswordMixin, PasswordValidatorMixin
 
 
@@ -38,7 +38,7 @@ class UpdateUserSchema(BaseModel):
 
 
 class UserOutputSchema(BaseModel):
-    id: UUID
+    id: UsersIDType
     email: EmailStr
     username: str
     created_at: datetime

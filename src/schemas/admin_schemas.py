@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Any, Optional
-from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from src.helpers.schema_helpers import add_metadata_to_fields
 from src.models.users import Users
+from src.schemas.user_schemas import UsersIDType
 
 
 class UsersSortingAdminSchema(BaseModel):
@@ -39,7 +39,7 @@ class UsersRoleFiltersAdminSchema(BaseModel):
     is_admin: Optional[bool] = Field(None)
     is_active: Optional[bool] = Field(None)
     is_verified: Optional[bool] = Field(None)
-    id: Optional[UUID] = Field(None)
+    id: Optional[UsersIDType] = Field(None)
     email: Optional[EmailStr] = Field(None)
     username: Optional[str] = Field(None)
 
@@ -87,7 +87,7 @@ class UpdateUserAdminSchema(BaseModel):
 
 
 class OutputUserAdminSchema(BaseModel):
-    id: UUID
+    id: UsersIDType
     email: EmailStr
     username: str
     is_admin: bool
@@ -105,4 +105,4 @@ class OutputUsersAdminSchema(BaseModel):
 
 
 class UserIdAdminSchema(BaseModel):
-    id: UUID
+    id: UsersIDType

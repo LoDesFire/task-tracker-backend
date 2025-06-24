@@ -1,9 +1,11 @@
 from pydantic import SecretStr
 
 from src.app.repositories import UserRepository
+from src.app.repositories.kafka_repository import KafkaRepository
 from src.app.repositories.redis_repository import RedisRepository
 from src.app.repositories.ses_repository import SESRepository
 from src.app.services.jwt_service import JWTService
+from src.constants import KafkaUserEventTypes
 from src.helpers.codes_helper import generate_verification_code
 from src.helpers.cryptography_helper import hash_password, verify_password
 from src.helpers.exceptions.repository_exceptions import (
@@ -17,6 +19,7 @@ from src.helpers.exceptions.service_exceptions.user_exceptions import (
     UserServiceException,
 )
 from src.helpers.jwt_helper import JWTTokenPayload
+from src.schemas.kafka_schemas import UserInfoSchema
 from src.schemas.user_schemas import (
     UpdateEmailUserSchema,
     UpdatePasswordUserSchema,
@@ -31,11 +34,13 @@ class UserService:
         jwt_service: JWTService,
         ses_repository: SESRepository,
         redis_repository: RedisRepository,
+        kafka_repository: KafkaRepository,
     ):
         self.user_repo = user_repository
         self.jwt_service = jwt_service
         self.ses_repo = ses_repository
         self.redis_repo = redis_repository
+        self.kafka_repo = kafka_repository
 
     async def update_user(
         self,
@@ -49,6 +54,15 @@ class UserService:
             )
         except RepositoryNotFoundException as exc:
             raise UserNotFoundException("Invalid access token") from exc
+
+        await self.kafka_repo.produce_user_event(
+            KafkaUserEventTypes.UPDATE,
+            UserInfoSchema(
+                id=str(updated_user.id),
+                email=updated_user.email,
+                username=updated_user.username,
+            ),
+        )
 
         return updated_user
 

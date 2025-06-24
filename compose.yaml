@@ -3,58 +3,14 @@ services:
     build:
       context: .
     networks:
-      - localstack
-      - default
+      - third-party-services
     ports:
       - "8001:8000"
     env_file:
-      - .docker.fastapi.env
-    depends_on:
-      redis:
-        condition: service_started
-      db:
-        condition: service_healthy
-
-  db:
-    image: postgres
-    restart: always
-    user: postgres
-    networks:
-      - default
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    env_file:
-      - .docker.postgres.env
-    ports:
-      - "5430:5432"
-    healthcheck:
-      test: [ "CMD", "pg_isready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis
-    container_name: redis
-    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
-    networks:
-      - default
-    volumes:
-      - redis:/var/lib/redis/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    ports:
-      - "6378:6379"
-    env_file:
-      - .docker.redis.env
+      - .docker.env
 
 networks:
-  localstack:
-    name: localstack_localstack-net
+  third-party-services:
+    name: thirdparty_services_third-party-services-net
     external: true
 
-volumes:
-  redis:
-  db-data:
