@@ -18,5 +18,5 @@ class RevokeTokensScope(StrEnum):
 
 
 class KafkaUserEventTypes(StrEnum):
-    REGISTRATION = "registration"
-    UPDATE = "update"
+    REGISTRATION = "user.create"
+    UPDATE = "user.update"

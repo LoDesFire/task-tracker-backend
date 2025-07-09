@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from aiokafka import AIOKafkaProducer
 
@@ -23,7 +24,11 @@ class KafkaProducerDependency:
         async with self._lock:
             if self._producer is None:
                 self._producer = AIOKafkaProducer(
-                    bootstrap_servers=self._bootstrap_servers
+                    bootstrap_servers=self._bootstrap_servers,
+                    value_serializer=lambda v: json.dumps(v, default=str).encode(
+                        "utf-8"
+                    ),
+                    key_serializer=lambda k: str(k).encode("utf-8"),
                 )
 
         await self._producer.start()

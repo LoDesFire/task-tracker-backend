@@ -1,4 +1,3 @@
-import json
 from typing import Callable, Coroutine
 
 from aiokafka import AIOKafkaProducer
@@ -19,13 +18,13 @@ class KafkaRepository:
         self, event_type: KafkaUserEventTypes, user_info: UserInfoSchema
     ):
         message_json = {
-            "event_type": event_type,
-            "user": user_info.model_dump(),
+            "type": event_type,
+            "object": user_info.model_dump(),
         }
-        raw_message = json.dumps(message_json).encode("utf-8")
         producer = await self.kafka_producer_factory()
         await producer.send(
             topic=settings.kafka_settings.user_events_topic,
-            value=raw_message,
+            value=message_json,
+            key=user_info.id,
         )
         await producer.stop()
