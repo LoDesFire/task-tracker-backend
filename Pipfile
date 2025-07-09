@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+sqlalchemy = "*"
+fastapi = "*"
+aioboto3 = "*"
+alembic = "*"
+pydantic-settings = "*"
+greenlet = "*"
+asyncpg = "*"
+pyjwt = "*"
+uvicorn = "*"
+aiokafka = "*"
+types-aiobotocore-s3 = "*"
+python-multipart = "*"
+cryptography = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.13"
