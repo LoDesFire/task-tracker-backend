@@ -3,12 +3,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DBSettings(BaseSettings):
-    name: str
-    user: str
-    password: SecretStr
-    host: str
-    port: int
-    echo: bool
+    name: str = "db-name"
+    user: str = "db-user"
+    password: SecretStr = "db-password"
+    host: str = "localhost"
+    port: int = 5432
+    echo: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

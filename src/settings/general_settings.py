@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     password_settings: PasswordSettings = PasswordSettings()
     kafka_settings: KafkaSettings = KafkaSettings()
 
-    ses_source_email: str
+    ses_source_email: str = "email@email.com"
     verification_code_ttl_minutes: int = 5
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
