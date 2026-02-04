@@ -4,7 +4,7 @@ from typing import Type, TypeVar
 from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
-from src.models.mixins.id_mixin import IDMixin
+from models.mixins.id_mixin import IDMixin
 
 
 class Base(DeclarativeBase):

@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, String, Text, ForeignKey, UUID, UniqueConstraint
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from src.models.base import Base, IDBase, UsersIDType
-from src.models.mixins.id_mixin import IDMixin
-from src.models.mixins.timestamp_mixins import CreatedAtMixin
+from models.base import Base, IDBase, UsersIDType
+from models.mixins.id_mixin import IDMixin
+from models.mixins.timestamp_mixins import CreatedAtMixin
 
 
 class Files(Base, IDMixin, CreatedAtMixin):

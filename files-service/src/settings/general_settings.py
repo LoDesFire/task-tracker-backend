@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from settings.s3_settings import AWSSettings
-from src.settings.db_settings import DBSettings
+from settings.db_settings import DBSettings
 
 
 class Settings(BaseSettings):

@@ -7,7 +7,7 @@ from typing import Callable
 import aioboto3
 from types_aiobotocore_s3.client import S3Client
 
-from src.settings.general_settings import settings
+from settings.general_settings import settings
 
 
 class S3Dependency:

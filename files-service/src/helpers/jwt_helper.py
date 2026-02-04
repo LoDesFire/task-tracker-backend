@@ -1,11 +1,11 @@
 import jwt
 from pydantic import BaseModel
 
-from src.models.base import UsersIDType
-from src.helpers.exceptions.helpers_exceptions import JWTDecodeException
+from models.base import UsersIDType
+from helpers.exceptions.helpers_exceptions import JWTDecodeException
 
-from src.constants import JWTTokenType
-from src.settings.general_settings import settings
+from constants import JWTTokenType
+from settings.general_settings import settings
 
 
 class JWTTokenPayload(BaseModel):

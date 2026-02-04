@@ -5,12 +5,12 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from typing_extensions import Generic
 
-from src.helpers.exceptions.repository_exceptions import (
+from helpers.exceptions.repository_exceptions import (
     RepositoryIntegrityException,
     RepositoryNotFoundException,
 )
-from src.models.base import IDBase
-from src.models.mixins.id_mixin import IDType
+from models.base import IDBase
+from models.mixins.id_mixin import IDType
 
 _T = TypeVar("_T", bound=IDBase)
 

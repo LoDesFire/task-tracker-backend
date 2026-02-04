@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 
 from app.repositories.entity_db_repository import EntityDbRepository
 from helpers.exceptions.repository_exceptions import RepositoryNotFoundException
-from src.models import ProjectFiles, Files
+from models import ProjectFiles, Files
 
 
 class ProjectFilesRepository(EntityDbRepository[ProjectFiles]):

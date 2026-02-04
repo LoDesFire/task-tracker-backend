@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from web.api import files
 from web.api.files import projects, users
 
 router = APIRouter(prefix="/files")

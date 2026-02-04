@@ -6,7 +6,7 @@ from types_aiobotocore_s3.client import S3Client
 
 from app.repositories.project_files_repository import ProjectFilesRepository
 from app.repositories.user_files_repository import UserFilesRepository
-from src.models import UserFiles, Files, ProjectFiles
+from models import UserFiles, Files, ProjectFiles
 from settings import settings
 
 

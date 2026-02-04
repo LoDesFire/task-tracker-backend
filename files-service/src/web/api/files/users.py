@@ -4,7 +4,7 @@ from starlette import status
 from app.services.files_service import FilesService
 from helpers.exceptions.repository_exceptions import RepositoryNotFoundException
 from helpers.jwt_helper import JWTTokenPayload
-from src.models.base import UsersIDType
+from models.base import UsersIDType
 from schemas.file_schema import OutFile
 from web.dependencies.auth_schema_dependency import JWTBearer
 from web.dependencies.service_dependencies import get_files_service
