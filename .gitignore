@@ -1,0 +1,12 @@
+# env files
+*.env
+
+# OS files
+.DS_Store
+
+# Folders
+__pycache__/
+.idea/
+
+# Data files
+*.sqlite3
