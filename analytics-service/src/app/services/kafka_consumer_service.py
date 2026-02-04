@@ -3,7 +3,7 @@ import logging
 from json import JSONDecodeError
 
 from aiokafka import AIOKafkaConsumer, TopicPartition, ConsumerRecord
-from src.kafka_consumer.handlers import handle_kafka_model_event
+from kafka_consumer.handlers import handle_kafka_model_event
 from settings import settings
 
 logger = logging.getLogger(__name__)

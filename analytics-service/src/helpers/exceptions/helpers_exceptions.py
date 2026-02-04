@@ -1,4 +1,4 @@
-from src.helpers.exceptions.base_exceptions import BaseAppException
+from helpers.exceptions.base_exceptions import BaseAppException
 
 
 class HelpersException(BaseAppException):

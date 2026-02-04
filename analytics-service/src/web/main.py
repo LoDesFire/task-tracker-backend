@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.web.routes import main_router
+from web.routes import main_router
 from web.dependencies.motor_dependency import MotorDependency
 
 

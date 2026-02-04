@@ -6,7 +6,7 @@
 
 # Folders
 __pycache__/
-.idea/
+../.idea/
 
 # Data files
 *.sqlite3
