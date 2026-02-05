@@ -10,7 +10,7 @@ rsa_keys/
 **/.venv
 **/.classpath
 **/.dockerignore
-**/.env
+.env
 **/.git
 **/.gitignore
 **/.project

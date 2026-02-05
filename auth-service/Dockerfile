@@ -42,7 +42,7 @@ WORKDIR /code
 COPY --from=builder /code /code
 
 # Creating folders, and files for a project:
-COPY . /code
+COPY .. /code
 
 EXPOSE 8000
 
