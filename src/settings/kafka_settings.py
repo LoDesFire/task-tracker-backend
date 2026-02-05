@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class KafkaSettings(BaseSettings):
-    bootstrap_servers: list[str]
-    user_events_topic: str
+    bootstrap_servers: list[str] = ["localhost:9092"]
+    user_events_topic: str = "topic"
 
     model_config = SettingsConfigDict(
         env_file=".env",

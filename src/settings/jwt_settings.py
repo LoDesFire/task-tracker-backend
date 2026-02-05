@@ -3,10 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class JWTSettings(BaseSettings):
-    private_key: SecretStr
-    public_key: str
-    access_token_ttl_minutes: int
-    refresh_token_ttl_minutes: int
+    private_key: SecretStr = "private-key"
+    public_key: str = "public-key"
+    access_token_ttl_minutes: int = 5
+    refresh_token_ttl_minutes: int = 86400
 
     model_config = SettingsConfigDict(
         env_file=".env",

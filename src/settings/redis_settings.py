@@ -3,10 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class RedisSettings(BaseSettings):
-    password: SecretStr
-    host: str
-    port: int
-    db_number: int
+    password: SecretStr = "password"
+    host: str = "localhost"
+    port: int = 6379
+    db_number: int = 0
 
     app_tokens_hash_prefix: str = "app_tks"
     user_apps_hash_prefix: str = "usr_apps"

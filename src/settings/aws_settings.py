@@ -3,10 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AWSSettings(BaseSettings):
-    endpoint_url: str
-    region_name: str
-    access_key_id: SecretStr
-    secret_access_key: SecretStr
+    endpoint_url: str = "localhost"
+    region_name: str = "region-name"
+    access_key_id: SecretStr = "access-key-id"
+    secret_access_key: SecretStr = "secret-access-key"
 
     model_config = SettingsConfigDict(
         env_file=".env",
