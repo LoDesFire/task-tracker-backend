@@ -1,0 +1,16 @@
+services:
+  server:
+    build:
+      context: ..
+    networks:
+      - third-party-services
+    ports:
+      - "8001:8000"
+    env_file:
+      - .docker.env
+
+networks:
+  third-party-services:
+    name: thirdparty_services_third-party-services-net
+    external: true
+
