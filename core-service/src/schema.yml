@@ -1,0 +1,514 @@
+openapi: 3.0.3
+info:
+  title: TODO Core Microservice
+  version: 1.0.0
+  description: Tasks management service
+paths:
+  /api/auth/permissions/{id}:
+    get:
+      operationId: auth_permissions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this users.
+        required: true
+      tags:
+      - User Permissions
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: auth_permissions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this users.
+        required: true
+      tags:
+      - User Permissions
+      responses:
+        '200':
+          description: No response body
+  /api/todo/projects:
+    get:
+      operationId: todo_projects_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - Projects
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectList'
+          description: ''
+    post:
+      operationId: todo_projects_create
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /api/todo/projects/{id}:
+    get:
+      operationId: todo_projects_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Projects
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    put:
+      operationId: todo_projects_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    patch:
+      operationId: todo_projects_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    delete:
+      operationId: todo_projects_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Projects
+      responses:
+        '204':
+          description: No response body
+  /api/todo/projects/{id}/invitation-link:
+    post:
+      operationId: todo_projects_invitation_link_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Invitations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /api/todo/projects/{projects_pk}/permissions/{id}:
+    get:
+      operationId: todo_projects_permissions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Project Permissions
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: todo_projects_permissions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Project Permissions
+      responses:
+        '200':
+          description: No response body
+  /api/todo/projects/{projects_pk}/tasks:
+    get:
+      operationId: todo_projects_tasks_retrieve
+      parameters:
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: todo_projects_tasks_create
+      parameters:
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCreate'
+          description: ''
+  /api/todo/projects/{projects_pk}/tasks/{id}:
+    get:
+      operationId: todo_projects_tasks_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: todo_projects_tasks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: todo_projects_tasks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: todo_projects_tasks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Tasks
+      responses:
+        '204':
+          description: No response body
+  /api/todo/projects/{projects_pk}/tasks/{id}/status/subscription:
+    post:
+      operationId: todo_projects_tasks_status_subscription_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Subscriptions
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: todo_projects_tasks_status_subscription_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: projects_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Subscriptions
+      responses:
+        '204':
+          description: No response body
+  /api/todo/projects/invitation-accept:
+    post:
+      operationId: todo_projects_invitation_accept_create
+      tags:
+      - Invitations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+components:
+  schemas:
+    PaginatedProjectList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+    PatchedProject:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        users_count:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 256
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        creator_user:
+          type: string
+          format: uuid
+          readOnly: true
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        users_count:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 256
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        creator_user:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - created_at
+      - creator_user
+      - id
+      - title
+      - users_count
+    StatusEnum:
+      enum:
+      - CREATED
+      - PREPARING
+      - IN_PROGRESS
+      - FINISHED
+      type: string
+      description: |-
+        * `CREATED` - CREATED
+        * `PREPARING` - PREPARING
+        * `IN_PROGRESS` - IN_PROGRESS
+        * `FINISHED` - FINISHED
+    TaskCreate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 256
+        body:
+          type: string
+          nullable: true
+        deadline:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        project:
+          type: integer
+          readOnly: true
+        finished_user:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        creator_user:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - created_at
+      - creator_user
+      - finished_at
+      - finished_user
+      - id
+      - project
+      - status
+      - title
